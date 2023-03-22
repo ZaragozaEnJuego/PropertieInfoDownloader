@@ -52,12 +52,26 @@ func main() {
 
 	// Imprimir los resultados
 
-	for _, node := range edificios {
+	res := []Node{}
+
+	for _, ed := range edificios {
+
+		if ed.Tags["addr:street"] != "" && ed.Tags["addr:housenumber"] != "" {
+			res = append(res, ed)
+
+		}
+
+	}
+
+	for _, node := range res {
+
 		fmt.Println("ID:", node.ID)
 		fmt.Println("Latitud:", node.Lat)
 		fmt.Println("Longitud:", node.Lon)
+
 		fmt.Println("Nombre:", node.Tags["name"])
 		fmt.Println("Tipo:", node.Tags["amenity"])
+		fmt.Println("Dirección:", node.Tags["addr:street"], node.Tags["addr:housenumber"])
 		fmt.Println()
 	}
 
