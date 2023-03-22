@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 )
 
 type Node struct {
@@ -19,11 +20,21 @@ type Response struct {
 	Nodes     []Node  `json:"elements"`
 }
 
+type Edificio struct {
+	Name       string  `json:"name"`
+	Kind       string  `json:"kind"`
+	Address    string  `json:"addres"`
+	Lng        float64 `json:"lng"`
+	Lat        float64 `json:"lat"`
+	Price      int     `json:"price"`
+	BaseIncome int     `json:"baseIncome"`
+}
+
 func main() {
 	//selecionar los tipos de edificios
 	amenities := []string{"restaurant", "bar", "school", "bus_station", "taxi", "library", "school", "university", "college", "clinic", "hospital", "pharmacy", "cafe", "fast_food"}
 
-	var edificios []Node
+	var edificios []Edificio
 
 	for _, am := range amenities {
 		//generar la url
@@ -36,7 +47,6 @@ func main() {
 			fmt.Println("Error al realizar la petición:", err)
 			return
 		}
-		defer resp.Body.Close()
 
 		// Leer la respuesta de la API y decodificarla en un struct Response
 		var data Response
@@ -46,33 +56,44 @@ func main() {
 			fmt.Println("Error al decodificar la respuesta:", err)
 			return
 		}
-		edificios = append(edificios, data.Nodes...)
 
-	}
+		for _, node := range data.Nodes {
+			if node.Tags["addr:street"] != "" && node.Tags["addr:housenumber"] != "" {
+				edificio := Edificio{
+					Name:    node.Tags["name"],
+					Kind:    node.Tags["amenity"],
+					Address: node.Tags["addr:street"] + ", " + node.Tags["addr:housenumber"],
+					Lng:     node.Lon,
+					Lat:     node.Lat,
+				}
+				//TODO: add price and income
+				//TODO: change kind to our kinds (transport, health, academic, groceries)
+				edificios = append(edificios, edificio)
 
-	// Imprimir los resultados
-
-	res := []Node{}
-
-	for _, ed := range edificios {
-
-		if ed.Tags["addr:street"] != "" && ed.Tags["addr:housenumber"] != "" {
-			res = append(res, ed)
+			}
 
 		}
+		resp.Body.Close()
 
 	}
+	// Convertir el slice en JSON
+	jsonData, err := json.Marshal(edificios)
+	if err != nil {
+		fmt.Println("Error al convertir a JSON:", err)
+		return
+	}
+	// Escribir el JSON en un archivo
+	file, err := os.Create("properties.json")
+	if err != nil {
+		fmt.Println("Error al crear el archivo:", err)
+		return
+	}
+	defer file.Close()
 
-	for _, node := range res {
-
-		fmt.Println("ID:", node.ID)
-		fmt.Println("Latitud:", node.Lat)
-		fmt.Println("Longitud:", node.Lon)
-
-		fmt.Println("Nombre:", node.Tags["name"])
-		fmt.Println("Tipo:", node.Tags["amenity"])
-		fmt.Println("Dirección:", node.Tags["addr:street"], node.Tags["addr:housenumber"])
-		fmt.Println()
+	_, err = file.Write(jsonData)
+	if err != nil {
+		fmt.Println("Error al escribir en el archivo:", err)
+		return
 	}
 
 }
