@@ -20,17 +20,17 @@ type Response struct {
 }
 
 func main() {
-	// Realizar la petición GET a la API de Overpass Turbo
-    //url:="https://overpass-api.de/api/interpreter?data=[out:json];area[name=\"Zaragoza\"]->.a;(node[\"amenity\"=\"restaurant\"](area.a);node[\"amenity\"=\"bar\"](area.a);node[\"amenity\"=\"university\"](area.a);node[\"amenity\"=\"school\"](area.a);node[\"amenity\"=\"transport\"](area.a));out;"
-   // url_onlyBar:="https://overpass-api.de/api/interpreter?data=[out:json];area[name=\"Zaragoza\"]->.a;node[\"amenity\"=\"restaurant\"][\"name\"](area.a);node[\"amenity\"=\"bar\"][\"name\"](area.a);node[\"amenity\"=\"school\"][\"name\"](area.a);out;"
-	amenities:=[]string{"restaurant","bar","school"}
+	//selecionar los tipos de edificios
+    amenities:=[]string{"restaurant","bar","school"}
+
+    //generar la url
     url:="https://overpass-api.de/api/interpreter?data=[out:json];area[name=\"Zaragoza\"]->.a;"
     for _, v := range amenities {
         url+=fmt.Sprintf("node[\"amenity\"=\"%s\"][\"name\"](area.a);",v)
         
     }
     url+="out;"
-    
+    // Realizar la petición GET a la API de Overpass Turbo
     resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Error al realizar la petición:", err)
