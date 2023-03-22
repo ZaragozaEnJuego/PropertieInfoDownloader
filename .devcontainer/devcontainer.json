@@ -1,0 +1,10 @@
+{ 
+    "name": "go-template", 
+    "dockerFile": "Dockerfile", 
+    "customizations":{
+        "vscode": {
+            "extensions": ["golang.go"]}
+    },
+    "remoteUser": "vscode",
+    "postStartCommand": "git config --global user.email \"${localEnv:VSCODE_CONTAINER_GIT_EMAIL}\" && git config --global user.name \"${localEnv:VSCODE_CONTAINER_GIT_USER}\""
+} 
