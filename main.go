@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 )
 
 type Node struct {
@@ -31,6 +33,9 @@ type Edificio struct {
 }
 
 func main() {
+	// Generar una semilla única usando la hora actual
+	rand.Seed(time.Now().UnixNano())
+
 	//selecionar los tipos de edificios
 	amenities := []string{"restaurant", "bar", "school", "bus_station", "taxi", "library", "school", "university", "college", "clinic", "hospital", "pharmacy", "cafe", "fast_food"}
 
@@ -58,21 +63,31 @@ func main() {
 		}
 
 		for _, node := range data.Nodes {
+			switch node.Tags["amenity"] {
+			case "bus_station", "taxi":
+				node.Tags["amenity"] = "transport"
+			case "clinic", "hospital", "pharmacy":
+				node.Tags["amenity"] = "health"
+			case "library", "school", "university", "college":
+				node.Tags["amenity"] = "academic"
+			case "restaurant", "bar", "cafe", "fast_food":
+				node.Tags["amenity"] = "groceries"
+			}
 			if node.Tags["addr:street"] != "" && node.Tags["addr:housenumber"] != "" {
 				edificio := Edificio{
-					Name:    node.Tags["name"],
-					Kind:    node.Tags["amenity"],
-					Address: node.Tags["addr:street"] + ", " + node.Tags["addr:housenumber"],
-					Lng:     node.Lon,
-					Lat:     node.Lat,
+					Name:       node.Tags["name"],
+					Kind:       node.Tags["amenity"],
+					Address:    node.Tags["addr:street"] + ", " + node.Tags["addr:housenumber"],
+					Lng:        node.Lon,
+					Lat:        node.Lat,
+					Price:      rand.Intn(100001) + 100000,
+					BaseIncome: rand.Intn(2001) + 1000,
 				}
-				//TODO: add price and income
-				//TODO: change kind to our kinds (transport, health, academic, groceries)
 				edificios = append(edificios, edificio)
-
 			}
 
 		}
+
 		resp.Body.Close()
 
 	}
