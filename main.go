@@ -25,7 +25,7 @@ type Response struct {
 type Edificio struct {
 	Name       string  `json:"name"`
 	Kind       string  `json:"kind"`
-	Address    string  `json:"addres"`
+	Address    string  `json:"address"`
 	Lng        float64 `json:"lng"`
 	Lat        float64 `json:"lat"`
 	Price      int     `json:"price"`
