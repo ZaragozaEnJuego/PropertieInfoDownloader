@@ -29,7 +29,7 @@ type Edificio struct {
 	Lng        float64 `json:"lng"`
 	Lat        float64 `json:"lat"`
 	Price      int     `json:"price"`
-	BaseIncome int     `json:"baseIncome"`
+	Income int     `json:"income"`
 }
 
 func main() {
